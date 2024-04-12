@@ -1,7 +1,7 @@
 import React from 'react';
 import LanderBg from '@/app/lander-bg';
 
-export default function Home() {
+export default function File() {
   return (
     <div className="relative w-full h-screen flex justify-center items-center">
       <LanderBg />
