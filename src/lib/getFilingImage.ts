@@ -1,8 +1,13 @@
 
-export const getFilingImage = () => {
+// @TODO
+export const getFilingImage = (description: string) => {
     // returns ipfs hash 
+    const ipfsHash = 'QmbwcUEN5yC43X3sYVqsBmSUQMbya17kHveFQ8g3GzoXDk'
+    return ipfsHash;
 }
 
-export const getCaseTitle = () => {
+// @TODO
+export const getCaseTitle = (description: string) => {
     // returns case title
+    return 'Case Title';
 }

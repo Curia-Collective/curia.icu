@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-// import { insertFiling } from '@/db/filings'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoaderIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -11,6 +10,7 @@ import { z } from 'zod'
 
 import { getEnsAddress } from '@/lib/ens'
 import { getCaseTitle, getFilingImage } from '@/lib/getFilingImage'
+import { insertFiling } from '@/db/filings'
 
 const filingSchema = z.object({
   partyA: z.string().refine(
@@ -73,13 +73,13 @@ export const AddFiling = () => {
       const title = await getCaseTitle(data.description)
 
       // save to db
-    //   const id = await insertFiling({
-    //     title,
-    //     partyA,
-    //     partyB,
-    //     description: data.description,
-    //     imageUrl: image,
-    //   })
+      const id = await insertFiling({
+        title,
+        partyA,
+        partyB,
+        description: data.description,
+        imageUrl: image,
+      })
 
       setCaseInfo({
         id,

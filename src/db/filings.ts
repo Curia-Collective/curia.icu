@@ -3,7 +3,7 @@
 import { eq } from 'drizzle-orm'
 
 import { db } from '.'
-import { InsertFiling, InsertJudgment, filings, judgments } from './schema'
+import { InsertFiling, InsertJudgment, SelectJudgments, filings, judgments } from './schema'
 import { zeroAddress } from 'viem'
 import { aiJudgment } from '@/lib/ai-judgment'
 
@@ -25,14 +25,6 @@ export const getFilingsByStatus = async (
 
 export const getFilingById = async (id: string) => {
   return (await db.select().from(filings).where(eq(filings.id, id)))[0]
-}
-
-export const insertJudgment = async (data: InsertJudgment) => {
-  return (
-    await db.insert(judgments).values(data).returning({
-      id: judgments.id,
-    })
-  )[0].id
 }
 
 export const addJudgment = async (data: InsertJudgment) => {
@@ -66,7 +58,7 @@ export const addJudgment = async (data: InsertJudgment) => {
   )[0]
 }
 
-export const getJudgmentsByFilingId = async (filingId: string) => {
+export const getJudgmentsByFilingId = async (filingId: string): Promise<SelectJudgments[] | null> => {
   const filing = await getFilingById(filingId)
   if (filing.status !== 'approved' && filing.status !== 'cancelled') return null
   
@@ -92,9 +84,12 @@ export const getJudgmentsByFilingId = async (filingId: string) => {
       signature: '0x',
     }
 
-    const j = await addJudgment(judgment)
+    const data = await db
+      .select()
+      .from(judgments)
+      .where(eq(judgments.filingId, filingId))
 
-    return [...data, j]
+    return data; 
   }
 
   return data;

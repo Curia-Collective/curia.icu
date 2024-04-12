@@ -1,7 +1,8 @@
-import { Address } from "viem"
+import { Address, zeroAddress } from "viem"
 
-export const getEnsAddress = () => {
-    
+// @TODO
+export const getEnsAddress = (name: string) => {
+    return zeroAddress;
 }
 
 export const truncAddress = (address: Address) => {
