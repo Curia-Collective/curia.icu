@@ -4,10 +4,10 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 
 const statusToClass: Record<FilingStatus, string> = {
-  pending: 'bg-silver border-black',
-  review: 'bg-yellow border-yellow',
-  approved: 'bg-green border-green',
-  cancelled: 'bg-red border-red',
+  pending: 'bg-neutral-500 border-black',
+  review: 'bg-yellow-500 border-yellow',
+  approved: 'bg-green-500 border-green',
+  cancelled: 'bg-red-500 border-red',
 }
 
 export const FilingStatusBadge = ({

@@ -4,7 +4,7 @@ import { prettyDate } from '@/lib/time';
 export const Judgments = async ({ judgments }: { judgments: SelectJudgments[] | null }) => {
   if (judgments !== null) {
     return (
-      <div className="border-2 border-gray-200 bg-white rounded-lg shadow-md">
+      <div className="border-2 border-black bg-white rounded-none shadow-md">
         <h2 className="px-4 py-2 text-xl font-bold bg-gray-100 rounded-t-lg">
           Judgments
         </h2>

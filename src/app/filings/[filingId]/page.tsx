@@ -14,12 +14,14 @@ const FilingPage = async ({
   const judgments = await getJudgmentsByFilingId(filing.id);
   
   return (
-    <div className="mt-[2rem] mb-[5rem]">
-      <FilingInfo filing={filing} />
-      <JudgeWithReason filing={filing} />
-      <Judgments judgments={judgments} />
-      <CreateProposal filing={filing} judgments={judgments} />
-    </div>
+    <div className="flex items-center justify-center p-6">
+      <div className="border-4 border-black p-0 bg-white lg:w-[80vw] rounded-md mb-[10rem]">
+        <FilingInfo filing={filing} />
+        <JudgeWithReason filing={filing} />
+        <Judgments judgments={judgments} />
+        <CreateProposal filing={filing} judgments={judgments} />
+    </div> 
+  </div>
   )
 }
 

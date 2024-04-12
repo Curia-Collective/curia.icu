@@ -7,6 +7,7 @@ import { useAccount, useReadContract } from 'wagmi'
 import { CURIA_ADDRESS, DAGON_ADDRESS } from '@/lib/contracts'
 import { dagonAbi } from '@/lib/abis/dagon'
 import { toast } from 'sonner'
+import { DEFAULT_NETWORK } from '@/lib/siteConfig'
 // import { toUnixTimestamp } from '@/lib/time'
 // import { pinJsonToIpfs } from '@/lib/pinata'
 // import { encodeExecuteBatch } from '@/lib/wallet/utils'
@@ -20,13 +21,14 @@ import { toast } from 'sonner'
 // import { createProposal } from '@/db/proposals'
 // import { getPimlicoBundlerClient } from '@/lib/wallet/bundlerClient'
 
-export const CreateProposal = async ({ filing, judgments }: { filing: SelectFilings, judgments: SelectJudgments[] | null }) => {
+export const CreateProposal = ({ filing, judgments }: { filing: SelectFilings, judgments: SelectJudgments[] | null }) => {
   const { address } = useAccount()
   const { data: balance } = useReadContract({
     address: DAGON_ADDRESS,
     abi: dagonAbi,
     functionName: 'balanceOf',
     args: address ? [address, BigInt(CURIA_ADDRESS)] : undefined,
+    chainId: DEFAULT_NETWORK.id,
   })
 
   const createMintPropOnCuria = async () => {
@@ -213,12 +215,11 @@ export const CreateProposal = async ({ filing, judgments }: { filing: SelectFili
 
     return (
       <div className="border-2 border-black bg-white p-2">
-        <p className="text-lg">You can create a proposal for this filing.</p>
         <button
           className="rounded-md bg-black p-2 text-white"
           onClick={createMintPropOnCuria}
         >
-          Create Proposal
+          Create Proposal on Curia
         </button>
       </div>
     )
