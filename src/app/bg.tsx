@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import randomColor from 'randomcolor'
 
-export default function LanderBg() {
+export default function Bg() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -108,5 +108,6 @@ export default function LanderBg() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full z-0" />;
+  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full -z-10" />;
+
 }

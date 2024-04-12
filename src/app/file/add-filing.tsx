@@ -38,7 +38,7 @@ const filingSchema = z.object({
 
 type FilingFormData = z.infer<typeof filingSchema>
 
-export const CreateNewFiling = () => {
+export const AddFiling = () => {
   const {
     register,
     handleSubmit,
@@ -112,7 +112,7 @@ export const CreateNewFiling = () => {
   }
 
   return (
-    <div className="h-fit rounded-[16px] border-2 border-black bg-white p-4 md:col-span-2">
+    <div className="h-fit lg:w-[80vw] rounded-[16px] border-4 border-black bg-white p-4 md:col-span-2">
       {caseInfo ? (
         <div className="">
           <h3 className="text-lg">
@@ -124,7 +124,7 @@ export const CreateNewFiling = () => {
         </div>
       ) : (
         <>
-          <h2 className="mb-2 text-xl font-bold">Create New Filing</h2>
+          <h2 className="mb-2 text-2xl">📤 File</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
               <label htmlFor="partyA" className="mb-1 block">
@@ -169,12 +169,12 @@ export const CreateNewFiling = () => {
             </div>
             <button
               type="submit"
-              className="w-full rounded bg-black px-4 py-2 text-white"
+              className="w-full rounded bg-black tracking-wide px-4 py-2 text-white"
             >
               {loading ? (
                 <LoaderIcon className="animate-spin text-white" />
               ) : (
-                'Create Filing'
+                'Create'
               )}
             </button>
           </form>
