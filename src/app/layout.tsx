@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Ibarra_Real_Nova } from "next/font/google";
-import "./globals.css";
 import { siteConfig } from "@/lib/siteConfig";
+import { RootProvider } from "./root-provider";
+import Bg from "./bg";
+import { Footer } from "./footer";
+
+import "./globals.css";
+import '@rainbow-me/rainbowkit/styles.css';
 
 const serif = Ibarra_Real_Nova({ subsets: ["latin"] });
 
@@ -16,8 +21,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={serif.className}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <RootProvider>
+        <body className={serif.className}>
+          {children}
+        </body>
+        <Footer />
+        <Bg />
+      </RootProvider>
     </html>
   );
 }
