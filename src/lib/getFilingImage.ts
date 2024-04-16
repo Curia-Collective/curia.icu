@@ -2,6 +2,7 @@
 
 import { env } from '@/env.mjs'
 import OpenAI from 'openai'
+
 import { query } from './llm'
 import { pinFileToIPFS } from './pinata'
 
@@ -30,10 +31,7 @@ export const getFilingImage = async (description: string): Promise<string> => {
     if (!imageUrl) {
       throw new Error('Failed to generate image')
     }
-
-    const imageResponse = await fetch(imageUrl)
-    const blob = await imageResponse.blob()
-    return await pinFileToIPFS(blob);
+    return await pinFileToIPFS(imageUrl)
   } catch (error) {
     console.error('Error generating filing image:', error)
     throw error

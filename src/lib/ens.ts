@@ -1,10 +1,22 @@
 'use server'
 
+import {
+  createConfig,
+  getEnsAddress as getEnsAddressWagmi,
+  http,
+} from '@wagmi/core'
+import { mainnet } from '@wagmi/core/chains'
 import { normalize } from 'viem/ens'
 
-import { getPublicClient } from './publicClient'
+const config = createConfig({
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http(),
+  },
+})
 
 export const getEnsAddress = async (name: string) => {
-  const normalized = normalize(name)
-  return await getPublicClient(1).getEnsAddress({ name: normalized })
+  return await getEnsAddressWagmi(config, {
+    name: normalize(name),
+  })
 }

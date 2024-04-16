@@ -27,7 +27,6 @@ export const aiJudgment = async (description: string) => {
       )
 
       if (judgment) {
-        console.log('AI Judgment:', attempts, judgment)
         const { reason, favours } = schema.parse(JSON.parse(judgment))
         return {
           reason,

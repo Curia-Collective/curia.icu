@@ -6,17 +6,20 @@ import { SelectFilings, SelectJudgments } from '@/db/schema'
 import { env } from '@/env.mjs'
 import { toast } from 'sonner'
 import { encodeFunctionData, getAddress, zeroAddress } from 'viem'
-import { useAccount, useReadContract, serialize } from 'wagmi'
+import { serialize, useAccount, useReadContract, useSignTypedData } from 'wagmi'
 
 import { accountAbi } from '@/lib/abis/account'
 import { dagonAbi } from '@/lib/abis/dagon'
 import { judgmentsAbi } from '@/lib/abis/judgments'
-import { CURIA_ADDRESS, DAGON_ADDRESS, JUDGMENTS_ADDRESS } from '@/lib/contracts'
+import {
+  CURIA_ADDRESS,
+  DAGON_ADDRESS,
+  JUDGMENTS_ADDRESS,
+} from '@/lib/contracts'
+import { createUserOp } from '@/lib/create-user-op'
 import { pinJsonToIpfs } from '@/lib/pinata'
 import { DEFAULT_NETWORK } from '@/lib/siteConfig'
 import { toUnixTimestamp } from '@/lib/time'
-import { useSignTypedData } from 'wagmi'
-import { createUserOp } from '@/lib/create-user-op'
 
 // import { toUnixTimestamp } from '@/lib/time'
 // import { pinJsonToIpfs } from '@/lib/pinata'
@@ -46,7 +49,7 @@ export const CreateProposal = ({
     args: address ? [address, BigInt(CURIA_ADDRESS)] : undefined,
     chainId: DEFAULT_NETWORK.id,
   })
-  const { signTypedDataAsync }= useSignTypedData()
+  const { signTypedDataAsync } = useSignTypedData()
   const [loading, setLoading] = useState(false)
 
   const createMintPropOnCuria = useCallback(async () => {
@@ -115,14 +118,8 @@ export const CreateProposal = ({
         data: encodeFunctionData({
           abi: judgmentsAbi,
           functionName: 'judge',
-          args: [
-            CURIA_ADDRESS,
-            BigInt(0),
-            BigInt(0),
-            '0x',
-            uri,
-          ],
-        }), 
+          args: [CURIA_ADDRESS, BigInt(0), BigInt(0), '0x', uri],
+        }),
       }
 
       const signature = await signTypedDataAsync({
@@ -144,18 +141,17 @@ export const CreateProposal = ({
         },
       })
 
-      console.log('URI:', uri, signature)
-      const userOpHash = await createUserOp(JSON.stringify({
-        op: {
-         ...op,
-         value: op.value.toString()
-       },
-        signature: signature.toString(),
-        signer: address.toString()
-    })
+      const userOpHash = await createUserOp(
+        JSON.stringify({
+          op: {
+            ...op,
+            value: op.value.toString(),
+          },
+          signature: signature.toString(),
+          signer: address.toString(),
+        }),
       )
 
-      console.log('UserOpHash:', userOpHash)
       toast.success(
         <div>
           Proposal submitted.

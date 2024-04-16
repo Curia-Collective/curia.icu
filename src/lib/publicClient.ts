@@ -2,11 +2,6 @@ import { env } from '@/env.mjs'
 import { createPublicClient, http } from 'viem'
 import { arbitrum, mainnet } from 'viem/chains'
 
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http('https://rpc.ankr.com/eth/' + env.NEXT_PUBLIC_ANKR_API_KEY),
-})
-
 const getChainById = (chainId: number) => {
   switch (chainId) {
     case 1:
@@ -26,10 +21,10 @@ const getChainById = (chainId: number) => {
 
 export const getPublicClient = (chainId: number) => {
   const chain = getChainById(chainId)
+  const rpcUrl = `https://rpc.ankr.com/${chain.shortName}/${env.NEXT_PUBLIC_ANKR_API_KEY}`
   return createPublicClient({
+    name: 'public',
     chain: chain.chain,
-    transport: http(
-      `https://rpc.ankr.com/${chain.shortName}/${env.NEXT_PUBLIC_ANKR_API_KEY}`,
-    ),
+    transport: http(rpcUrl),
   })
 }

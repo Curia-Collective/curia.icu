@@ -82,7 +82,6 @@ export const getJudgmentsByFilingId = async (
   if (!zeroAddressJudgment) {
     const filing = await getFilingById(filingId)
     const { reason, favours } = await aiJudgment(filing.description)
-    console.log('AI Judgment:', reason, favours)
     const judgment = {
       filingId: filing.id,
       judge: zeroAddress,
@@ -91,6 +90,7 @@ export const getJudgmentsByFilingId = async (
       timestamp: Math.floor(Date.now() / 1000),
       signature: '0x',
     }
+    await addJudgment(judgment)
 
     const data = await db
       .select()

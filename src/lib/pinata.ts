@@ -2,8 +2,8 @@
 
 import { env } from '@/env.mjs'
 import pinataSDK from '@pinata/sdk'
-import { keccak256, toHex } from 'viem'
 import { v4 as uuid } from 'uuid'
+import { keccak256, toHex } from 'viem'
 
 const pinata = new pinataSDK({ pinataJWTKey: env.PINATA_JWT })
 
@@ -17,14 +17,38 @@ export const pinJsonToIpfs = async (json: any) => {
   return formatIpfsUrl(res.IpfsHash)
 }
 
-export const pinFileToIPFS = async (file: Blob) => {
-  const res = await pinata.pinFileToIPFS(file, {
-    pinataMetadata: {
-      name: `filing-${uuid()}`,
-    },
-  })
+export const pinFileToIPFS = async (url: string) => {
+  try {
+    const formData = new FormData()
 
-  return formatIpfsUrl(res.IpfsHash)
+    const imageResponse = await fetch(url)
+    const blob = await imageResponse.blob()
+    formData.append('file', blob, `filing-${uuid()}`)
+
+    const pinataMetadata = JSON.stringify({
+      name: `filing-${uuid()}`,
+    })
+    formData.append('pinataMetadata', pinataMetadata)
+
+    const pinataOptions = JSON.stringify({
+      cidVersion: 0,
+    })
+    formData.append('pinataOptions', pinataOptions)
+
+    const res = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.PINATA_JWT}`,
+      },
+      body: formData,
+    })
+
+    const resData = await res.json()
+    return formatIpfsUrl(resData.IpfsHash)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
 }
 
 const formatIpfsUrl = (hash: string) => `ipfs://${hash}`

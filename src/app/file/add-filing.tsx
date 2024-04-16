@@ -7,6 +7,7 @@ import { LoaderIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { isAddress } from 'viem'
+import { useEnsAddress } from 'wagmi'
 import { z } from 'zod'
 
 import { getEnsAddress } from '@/lib/ens'
@@ -63,14 +64,25 @@ export const AddFiling = () => {
         resolveAddress(data.partyA),
         resolveAddress(data.partyB),
       ])
+      toast.success(
+        <div>
+          <p>Addresses resolved successfully!</p>
+        </div>,
+      )
       // Handle form submission with resolved addresses
       const image = await getFilingImage(data.description)
       const imageUrl = image.replace(
         'ipfs://',
         'https://content.wrappr.wtf/ipfs/',
       )
+      toast.success(
+        <div>
+          <p>Image generated successfully!</p>
+        </div>,
+      )
 
       const title = await getCaseTitle(data.description)
+      toast.success('Title generated successfully!' + title)
 
       // save to db
       const id = await insertFiling({
@@ -95,7 +107,7 @@ export const AddFiling = () => {
         </div>,
       )
     } catch (error) {
-      console.error('Error resolving addresses:', error)
+      console.error('Error:', error)
       toast.error(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setLoading(false)
