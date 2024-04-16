@@ -6,7 +6,7 @@ import { useEnsName } from 'wagmi'
 
 import { truncAddress } from '@/lib/address'
 
-export const PrettyAccount = React.memo(({ address }: { address: string }) => {
+const PrettyAccountComponent = ({ address }: { address: string }) => {
   const { data } = useEnsName({
     address: address as Address,
     chainId: 1,
@@ -17,4 +17,7 @@ export const PrettyAccount = React.memo(({ address }: { address: string }) => {
   }
 
   return <span>{truncAddress(getAddress(address))}</span>
-})
+}
+
+export const PrettyAccount = React.memo(PrettyAccountComponent)
+PrettyAccount.displayName = 'PrettyAccount'

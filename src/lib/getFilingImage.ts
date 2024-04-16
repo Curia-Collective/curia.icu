@@ -2,10 +2,8 @@
 
 import { env } from '@/env.mjs'
 import OpenAI from 'openai'
-import { keccak256, toHex } from 'viem'
-
 import { query } from './llm'
-import { pinata } from './pinata'
+import { pinFileToIPFS } from './pinata'
 
 export const getFilingImage = async (description: string): Promise<string> => {
   try {
@@ -34,15 +32,8 @@ export const getFilingImage = async (description: string): Promise<string> => {
     }
 
     const imageResponse = await fetch(imageUrl)
-    const stream = imageResponse.body
-    const res = await pinata.pinFileToIPFS(stream, {
-      pinataMetadata: {
-        name: `filing-${keccak256(toHex(description))}`,
-      },
-    })
-    const ipfsHash = res.IpfsHash
-
-    return `ipfs://${ipfsHash}`
+    const blob = await imageResponse.blob()
+    return await pinFileToIPFS(blob);
   } catch (error) {
     console.error('Error generating filing image:', error)
     throw error
