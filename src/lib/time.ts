@@ -12,3 +12,7 @@ export const prettyDate = (date: Date) => {
 
   return `${d.format('Do')} of ${d.format('MMMM YYYY')}, ${d.format('h:mm A')}`
 }
+
+export const toUnixTimestamp = (date: Date) => {
+  return Math.floor(date.getTime() / 1000)
+}

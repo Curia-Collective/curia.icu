@@ -31,7 +31,8 @@ export const Judgments = async ({
                   In <strong>favour</strong> of Party {judgment.favours}
                 </div>
                 <div>
-                  <strong>Signature</strong> <pre>{judgment.signature}</pre>
+                  <pre className="bg-stone-200 p-1 border-stone-300 border-2 whitespace-pre-wrap break-words max-w-full">{judgment.signature}</pre>
+                  <p className="uppercase text-center bg-stone-300 border-gray-300 border-2 tracking-wide">Signature</p>  
                 </div>
                 <div className="mb-1 text-right">
                   {prettyDate(new Date(judgment.timestamp * 1000))}

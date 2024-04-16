@@ -5,3 +5,6 @@ export const DAGON_ADDRESS =
 
 export const CURIA_ADDRESS =
   '0x0000000000001d8a2e7bf6bc369525A2654aa298'.toLowerCase() as Address
+
+export const JUDGMENTS_ADDRESS =
+  '0x00000000000045c141ce339bc666ec791646e43c' as Address
