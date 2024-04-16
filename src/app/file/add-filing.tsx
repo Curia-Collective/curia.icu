@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { insertFiling } from '@/db/filings'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoaderIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -10,7 +11,6 @@ import { z } from 'zod'
 
 import { getEnsAddress } from '@/lib/ens'
 import { getCaseTitle, getFilingImage } from '@/lib/getFilingImage'
-import { insertFiling } from '@/db/filings'
 
 const filingSchema = z.object({
   partyA: z.string().refine(
@@ -112,7 +112,7 @@ export const AddFiling = () => {
   }
 
   return (
-    <div className="h-fit lg:w-[80vw] rounded-[16px] border-4 border-black bg-white p-4 md:col-span-2">
+    <div className="h-fit rounded-[16px] border-4 border-black bg-white p-4 md:col-span-2 lg:w-[80vw]">
       {caseInfo ? (
         <div className="">
           <h3 className="text-lg">
@@ -169,7 +169,7 @@ export const AddFiling = () => {
             </div>
             <button
               type="submit"
-              className="w-full rounded bg-black tracking-wide px-4 py-2 text-white"
+              className="w-full rounded bg-black px-4 py-2 tracking-wide text-white"
             >
               {loading ? (
                 <LoaderIcon className="animate-spin text-white" />

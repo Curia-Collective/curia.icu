@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address } from 'viem'
 
 export const DAGON_ADDRESS =
   '0x0000000000001ADDcB933DD5028159dc965b5b7f' as Address

@@ -1,11 +1,17 @@
 'use server'
 
 import { eq } from 'drizzle-orm'
-
-import { db } from '.'
-import { InsertFiling, InsertJudgment, SelectJudgments, filings, judgments } from './schema'
 import { zeroAddress } from 'viem'
+
 import { aiJudgment } from '@/lib/ai-judgment'
+import { db } from '.'
+import {
+  InsertFiling,
+  InsertJudgment,
+  SelectJudgments,
+  filings,
+  judgments,
+} from './schema'
 
 const CURIA_THRESHOLD = 2
 
@@ -58,17 +64,19 @@ export const addJudgment = async (data: InsertJudgment) => {
   )[0]
 }
 
-export const getJudgmentsByFilingId = async (filingId: string): Promise<SelectJudgments[] | null> => {
+export const getJudgmentsByFilingId = async (
+  filingId: string,
+): Promise<SelectJudgments[] | null> => {
   const filing = await getFilingById(filingId)
   if (filing.status !== 'approved' && filing.status !== 'cancelled') return null
-  
+
   const data = await db
     .select()
     .from(judgments)
     .where(eq(judgments.filingId, filingId))
 
   // if data does not include judgment from zeroAddress then add AI judgment
-  
+
   // check if data includes judgment with judge = zeroAddress
   const zeroAddressJudgment = data.find((j) => j.judge === zeroAddress)
   if (!zeroAddressJudgment) {
@@ -78,7 +86,7 @@ export const getJudgmentsByFilingId = async (filingId: string): Promise<SelectJu
     const judgment = {
       filingId: filing.id,
       judge: zeroAddress,
-      reasoning: reason, 
+      reasoning: reason,
       favours: favours,
       timestamp: Math.floor(Date.now() / 1000),
       signature: '0x',
@@ -89,8 +97,8 @@ export const getJudgmentsByFilingId = async (filingId: string): Promise<SelectJu
       .from(judgments)
       .where(eq(judgments.filingId, filingId))
 
-    return data; 
+    return data
   }
 
-  return data;
+  return data
 }

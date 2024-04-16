@@ -1,5 +1,6 @@
 'use server'
-import { env } from "@/env.mjs"
+
+import { env } from '@/env.mjs'
 import OpenAI from 'openai'
 
 const OPENROUTER_API_KEY = env.OPENROUTER_API_KEY
@@ -15,15 +16,15 @@ const openai = new OpenAI({
 })
 
 export async function query(description: string, model?: string) {
-    const completion = await openai.chat.completions.create({
-      model: model ?? 'openrouter/auto',
-      messages: [
-        {
-          role: 'user',
-          content: description,
-        },
-      ],
-    })
-  
-    return completion.choices[0].message.content
-  }
+  const completion = await openai.chat.completions.create({
+    model: model ?? 'openrouter/auto',
+    messages: [
+      {
+        role: 'user',
+        content: description,
+      },
+    ],
+  })
+
+  return completion.choices[0].message.content
+}
