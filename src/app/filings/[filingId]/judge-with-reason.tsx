@@ -9,8 +9,8 @@ import { toast } from 'sonner'
 import { useAccount, useReadContract, useSignTypedData } from 'wagmi'
 import { z } from 'zod'
 
-import { dagonAbi } from '@/lib/abis/dagon' 
-import { DAGON_ADDRESS, CURIA_ADDRESS } from '@/lib/contracts'
+import { dagonAbi } from '@/lib/abis/dagon'
+import { CURIA_ADDRESS, DAGON_ADDRESS } from '@/lib/contracts'
 import { cn } from '@/lib/utils'
 
 const schema = z.object({
@@ -74,14 +74,16 @@ export const JudgeWithReason = ({ filing }: { filing: SelectFilings }) => {
       })
 
       // Call insertJudgment with the signature and form data
-      const judgmentId = (await addJudgment({
-        filingId: filing.id,
-        judge: address,
-        reasoning: data.reason,
-        favours: data.favours,
-        timestamp: timestamp,
-        signature,
-      })).id
+      const judgmentId = (
+        await addJudgment({
+          filingId: filing.id,
+          judge: address,
+          reasoning: data.reason,
+          favours: data.favours,
+          timestamp: timestamp,
+          signature,
+        })
+      ).id
 
       toast.success('Judgment submitted successfully with ID: ' + judgmentId)
     } catch (error) {

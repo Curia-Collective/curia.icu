@@ -1,13 +1,26 @@
 'use client'
 
+import { useCallback, useState } from 'react'
 import Link from 'next/link'
 import { SelectFilings, SelectJudgments } from '@/db/schema'
-import { useAccount, useReadContract } from 'wagmi'
-
-import { CURIA_ADDRESS, DAGON_ADDRESS } from '@/lib/contracts'
-import { dagonAbi } from '@/lib/abis/dagon'
+import { env } from '@/env.mjs'
 import { toast } from 'sonner'
+import { encodeFunctionData, getAddress, zeroAddress } from 'viem'
+import { serialize, useAccount, useReadContract, useSignTypedData } from 'wagmi'
+
+import { accountAbi } from '@/lib/abis/account'
+import { dagonAbi } from '@/lib/abis/dagon'
+import { judgmentsAbi } from '@/lib/abis/judgments'
+import {
+  CURIA_ADDRESS,
+  DAGON_ADDRESS,
+  JUDGMENTS_ADDRESS,
+} from '@/lib/contracts'
+import { createUserOp } from '@/lib/create-user-op'
+import { pinJsonToIpfs } from '@/lib/pinata'
 import { DEFAULT_NETWORK } from '@/lib/siteConfig'
+import { toUnixTimestamp } from '@/lib/time'
+
 // import { toUnixTimestamp } from '@/lib/time'
 // import { pinJsonToIpfs } from '@/lib/pinata'
 // import { encodeExecuteBatch } from '@/lib/wallet/utils'
@@ -21,7 +34,13 @@ import { DEFAULT_NETWORK } from '@/lib/siteConfig'
 // import { createProposal } from '@/db/proposals'
 // import { getPimlicoBundlerClient } from '@/lib/wallet/bundlerClient'
 
-export const CreateProposal = ({ filing, judgments }: { filing: SelectFilings, judgments: SelectJudgments[] | null }) => {
+export const CreateProposal = ({
+  filing,
+  judgments,
+}: {
+  filing: SelectFilings
+  judgments: SelectJudgments[] | null
+}) => {
   const { address } = useAccount()
   const { data: balance } = useReadContract({
     address: DAGON_ADDRESS,
@@ -30,155 +49,126 @@ export const CreateProposal = ({ filing, judgments }: { filing: SelectFilings, j
     args: address ? [address, BigInt(CURIA_ADDRESS)] : undefined,
     chainId: DEFAULT_NETWORK.id,
   })
+  const { signTypedDataAsync } = useSignTypedData()
+  const [loading, setLoading] = useState(false)
 
-  const createMintPropOnCuria = async () => {
+  const createMintPropOnCuria = useCallback(async () => {
     try {
-    //   if (judgments === null || judgments.length < 2) {
-    //     throw new Error('Not enough judgments to approve')
-    //   }
+      setLoading(true)
+      if (judgments === null || judgments.length < 3) {
+        throw new Error(
+          'Not enough judgments to approve. Has everyone (including AI) judged yet?',
+        )
+      }
 
-    //   // create proposal
-    //   const tokenUri = {
-    //     name: filing.title,
-    //     description: filing.description,
-    //     image: filing.imageUrl,
-    //     external_url: `https://www.curia.icu/filings/${filing.id}`,
-    //     attributes: [
-    //         {
-    //             "display_type": "date", 
-    //             trait_type: 'Filing Date',
-    //             value: toUnixTimestamp(new Date(filing.createdAt))
-    //         },
-    //         {
-    //             "display_type": "boost_percentage", 
-    //             "trait_type": "For Party A", 
-    //             "value": (judgments.reduce((acc, judgment) => {
-    //                 return judgment.favours === 'A' ? acc + 1 : acc
-    //             }, 0) / judgments.length) * 100
-    //         }, 
-    //         {
-    //             "display_type": "boost_percentage", 
-    //             "trait_type": "For Party B", 
-    //             "value": (judgments.reduce((acc, judgment) => {
-    //                 return judgment.favours === 'B' ? acc + 1 : acc
-    //             }, 0) / judgments.length) * 100
-    //         },
-    //         ...judgments.map((judgment) => ({
-    //             trait_type: `Judge ${judgment.judge}`,
-    //             value: `${judgment.reasoning}
-                
-    //             In favour of ${judgment.favours}
-                
-    //             Signature: ${judgment.signature}`,
-    //         })),
-    //     ],
-    //   }
+      if (!address) {
+        throw new Error('You must be connected to create a proposal.')
+      }
 
-    //   const uri = 'ipfs://QmbwcUEN5yC43X3sYVqsBmSUQMbya17kHveFQ8g3GzoXDk' // await pinJsonToIpfs(tokenUri)
+      //  create proposal
+      const tokenUri = {
+        name: filing.title,
+        description: filing.description,
+        image: filing.imageUrl,
+        external_url: `https://www.curia.icu/filings/${filing.id}`,
+        attributes: [
+          {
+            display_type: 'date',
+            trait_type: 'Filing Date',
+            value: toUnixTimestamp(new Date(filing.createdAt)),
+          },
+          {
+            display_type: 'boost_percentage',
+            trait_type: 'For Party A',
+            value:
+              (judgments.reduce((acc, judgment) => {
+                return judgment.favours === 'A' ? acc + 1 : acc
+              }, 0) /
+                judgments.length) *
+              100,
+          },
+          {
+            display_type: 'boost_percentage',
+            trait_type: 'For Party B',
+            value:
+              (judgments.reduce((acc, judgment) => {
+                return judgment.favours === 'B' ? acc + 1 : acc
+              }, 0) /
+                judgments.length) *
+              100,
+          },
+          ...judgments.map((judgment) => ({
+            trait_type: `Judge ${
+              judgment.judge === zeroAddress ? 'AI' : judgment.judge
+            }`,
+            value: `${judgment.reasoning}
 
-    //   const callData = encodeExecuteBatch([
-    //     {
-    //         target: '0x00000000000045c141ce339bc666ec791646e43c',
-    //         value: 0n,
-    //         data: encodeFunctionData({
-    //             abi: JudgementsAbi,
-    //             functionName: 'judge',
-    //             args: [
-    //                 getAddress(filing.partyA),
-    //                 0n,
-    //                 BigInt(1),
-    //                 '0x',
-    //                 uri,
-    //             ],
-    //         })
-    //     },
-    //     {
-    //         target: '0x00000000000045c141ce339bc666ec791646e43c',
-    //         value: 0n,
-    //         data: encodeFunctionData({
-    //             abi: JudgementsAbi,
-    //             functionName: 'judge',
-    //             args: [
-    //                 getAddress(filing.partyB),
-    //                 0n,
-    //                 BigInt(1),
-    //                 '0x',
-    //                 uri,
-    //             ],
-    //         })
-    //     }
-    //   ])
+                  In favour of ${judgment.favours}
 
-    //   const client = getPimlicoBundlerClient({
-    //     chainId: DEFAULT_NETWORK.id,
-    //   })
+                  Signature: ${judgment.signature}`,
+          })),
+        ],
+      }
 
-    //   const g = await client.getUserOperationGasPrice()
+      const uri = await pinJsonToIpfs(tokenUri)
 
-    //   let userOperation = {
-    //     sender: CURIA_ADDRESS,
-    //     callData: callData,
-    //     nonce: await getAccountNonce(
-    //       getPublicClient({ chainId: DEFAULT_NETWORK.id }),
-    //       {
-    //         sender: CURIA_ADDRESS,
-    //         entryPoint: ENTRYPOINT_ADDRESS_V06,
-    //         key: 0n,
-    //       },
-    //     ),
-    //     initCode: '0x' as Hex,
-    //     maxFeePerGas: g.fast.maxFeePerGas,
-    //     maxPriorityFeePerGas: g.fast.maxPriorityFeePerGas,
-    //     preVerificationGas: 0n,
-    //     verificationGasLimit: 0n,
-    //     callGasLimit: 0n,
-    //     paymasterAndData: NEETH_ADDRESS as Address,
-    //     signature: DUMMY_SIGNATURE as Hex,
-    //   }
+      const op = {
+        target: JUDGMENTS_ADDRESS,
+        value: BigInt(0),
+        data: encodeFunctionData({
+          abi: judgmentsAbi,
+          functionName: 'judge',
+          args: [CURIA_ADDRESS, BigInt(0), BigInt(0), '0x', uri],
+        }),
+      }
 
-    //   const gas = await client.estimateUserOperationGas({
-    //     userOperation: userOperation,
-    //   })
+      const signature = await signTypedDataAsync({
+        domain: {
+          verifyingContract: CURIA_ADDRESS,
+        },
+        types: {
+          Op: [
+            { name: 'target', type: 'address' },
+            { name: 'value', type: 'uint256' },
+            { name: 'data', type: 'bytes' },
+          ],
+        },
+        primaryType: 'Op',
+        message: {
+          target: op.target,
+          value: op.value,
+          data: op.data,
+        },
+      })
 
-    //   userOperation.preVerificationGas = gas.preVerificationGas
-    //   userOperation.verificationGasLimit = gas.verificationGasLimit * 3n
-    //   userOperation.callGasLimit = gas.callGasLimit
+      const userOpHash = await createUserOp(
+        JSON.stringify({
+          op: {
+            ...op,
+            value: op.value.toString(),
+          },
+          signature: signature.toString(),
+          signer: address.toString(),
+        }),
+      )
 
-    //   const userOpHash = getUserOperationHash({
-    //     userOperation: userOperation,
-    //     entryPoint: ENTRYPOINT_ADDRESS_V06,
-    //     chainId: DEFAULT_NETWORK.id,
-    //   })
-
-    //   toast.success(`Proposing Transaction... ${userOpHash}`)
-
-    //   const proposal = await createProposal({
-    //     userOpHash,
-    //     sender: userOperation.sender,
-    //     chain: 'arbitrum',
-    //     nonce: userOperation.nonce.toString(),
-    //     maxFeePerGas: userOperation.maxFeePerGas,
-    //     maxPriorityFeePerGas: userOperation.maxPriorityFeePerGas,
-    //     preVerificationGas: userOperation.preVerificationGas,
-    //     verificationGasLimit: userOperation.verificationGasLimit,
-    //     callGasLimit: userOperation.callGasLimit,
-    //     callData: userOperation.callData,
-    //     initCode: userOperation.initCode,
-    //     paymasterAndData: userOperation.paymasterAndData,
-    //   })
-      
-    //   toast.success(<div>
-    //     Proposal submitted.
-    //     <Link href={`/op/${userOpHash}`}>View the proposal</Link>
-    //  </div>)
-      toast.success('Proposing to CURIA is not yet implemented.')
+      toast.success(
+        <div>
+          Proposal submitted.
+          <Link href={`${env.NEXT_PUBLIC_NANI_URL}/op/${userOpHash}`}>
+            View the proposal
+          </Link>
+        </div>,
+      )
     } catch (error) {
       console.error(error)
       const message =
         error instanceof Error ? error.message : 'An error occurred'
       toast.error(message)
+    } finally {
+      setLoading(false)
     }
-  }
+  }, [judgments, filing, address, signTypedDataAsync])
 
   if (filing.status !== 'approved') return null
 
@@ -218,8 +208,9 @@ export const CreateProposal = ({ filing, judgments }: { filing: SelectFilings, j
         <button
           className="rounded-md bg-black p-2 text-white"
           onClick={createMintPropOnCuria}
+          disabled={loading}
         >
-          Create Proposal on Curia
+          {loading ? 'Proposing...' : 'Create Proposal on Curia'}
         </button>
       </div>
     )

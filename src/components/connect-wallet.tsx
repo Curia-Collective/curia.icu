@@ -1,6 +1,7 @@
 'use client'
-import { ConnectButton } from "@rainbow-me/rainbowkit"
+
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export const ConnectWallet = () => {
-    return <ConnectButton label="Log In" />
+  return <ConnectButton label="Log In" />
 }

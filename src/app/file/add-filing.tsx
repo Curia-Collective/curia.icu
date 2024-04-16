@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { insertFiling } from '@/db/filings'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoaderIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { isAddress } from 'viem'
+import { useEnsAddress } from 'wagmi'
 import { z } from 'zod'
 
 import { getEnsAddress } from '@/lib/ens'
 import { getCaseTitle, getFilingImage } from '@/lib/getFilingImage'
-import { insertFiling } from '@/db/filings'
 
 const filingSchema = z.object({
   partyA: z.string().refine(
@@ -63,14 +64,25 @@ export const AddFiling = () => {
         resolveAddress(data.partyA),
         resolveAddress(data.partyB),
       ])
+      toast.success(
+        <div>
+          <p>Addresses resolved successfully!</p>
+        </div>,
+      )
       // Handle form submission with resolved addresses
       const image = await getFilingImage(data.description)
       const imageUrl = image.replace(
         'ipfs://',
         'https://content.wrappr.wtf/ipfs/',
       )
+      toast.success(
+        <div>
+          <p>Image generated successfully!</p>
+        </div>,
+      )
 
       const title = await getCaseTitle(data.description)
+      toast.success('Title generated successfully!' + title)
 
       // save to db
       const id = await insertFiling({
@@ -95,7 +107,7 @@ export const AddFiling = () => {
         </div>,
       )
     } catch (error) {
-      console.error('Error resolving addresses:', error)
+      console.error('Error:', error)
       toast.error(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setLoading(false)
@@ -112,7 +124,7 @@ export const AddFiling = () => {
   }
 
   return (
-    <div className="h-fit lg:w-[80vw] rounded-[16px] border-4 border-black bg-white p-4 md:col-span-2">
+    <div className="h-fit rounded-[16px] border-4 border-black bg-white p-4 md:col-span-2 lg:w-[80vw]">
       {caseInfo ? (
         <div className="">
           <h3 className="text-lg">
@@ -169,7 +181,7 @@ export const AddFiling = () => {
             </div>
             <button
               type="submit"
-              className="w-full rounded bg-black tracking-wide px-4 py-2 text-white"
+              className="w-full rounded bg-black px-4 py-2 tracking-wide text-white"
             >
               {loading ? (
                 <LoaderIcon className="animate-spin text-white" />

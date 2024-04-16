@@ -1,6 +1,6 @@
+import { FilingStatusBadge } from '@/app/filings/[filingId]/filing-status'
 import { SelectFilings } from '@/db/schema'
 
-import { FilingStatusBadge } from '@/app/filings/[filingId]/filing-status'
 import { getWrapprUri } from '@/lib/ipfs'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 

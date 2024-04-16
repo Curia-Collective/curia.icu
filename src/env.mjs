@@ -21,6 +21,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_WC_ID: z.string().min(1),
     NEXT_PUBLIC_ANKR_API_KEY: z.string().min(1),
+    NEXT_PUBLIC_NANI_URL: z.string().min(1),
   },
   /*
    * Due to how Next.js bundles environment variables on Edge and Client,
@@ -37,5 +38,7 @@ export const env = createEnv({
     NEXT_PUBLIC_ANKR_API_KEY: process.env.NEXT_PUBLIC_ANKR_API_KEY, 
     NEXT_PUBLIC_WC_ID:
       process.env.NEXT_PUBLIC_WC_ID,
+    NEXT_PUBLIC_NANI_URL: process.env.NEXT_PUBLIC_NANI_URL,
   },
+
 });
