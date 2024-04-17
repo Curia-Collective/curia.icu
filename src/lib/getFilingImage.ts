@@ -41,7 +41,8 @@ export const getFilingImage = async (description: string): Promise<string> => {
 export const getCaseTitle = async (description: string): Promise<string> => {
   const title = await query(
     'Generate a short, snappy, catchy title for this court case, the title must not exceed 10 words. You should only return the title of the case and nothing else. The case description is:/n/n' +
-      description + `/n/n Remember, your job is to generate the title. It should be catchy and snappy e.g. Decoding the V4 Ownership Dilemma, `,
+      description +
+      `/n/n Remember, your job is to generate the title. It should be catchy and snappy e.g. Decoding the V4 Ownership Dilemma, `,
     'cognitivecomputations/dolphin-mixtral-8x7b',
   )
 
