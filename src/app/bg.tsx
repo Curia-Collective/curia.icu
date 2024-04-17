@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
-import randomColor from 'randomcolor'
 
 export default function Bg() {
   const canvasRef = useRef<HTMLCanvasElement>(null)

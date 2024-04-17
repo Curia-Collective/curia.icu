@@ -12,6 +12,7 @@ const FilingPage = async ({
 }) => {
   const filing = await getFilingById(filingId)
   const judgments = await getJudgmentsByFilingId(filing.id)
+  console.log(filing, judgments)
 
   return (
     <div className="flex items-center justify-center p-6">
