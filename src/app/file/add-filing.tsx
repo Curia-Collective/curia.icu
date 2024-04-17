@@ -3,17 +3,18 @@
 import { useState } from 'react'
 import { insertFiling } from '@/db/filings'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LoaderIcon } from 'lucide-react'
+import { LoaderIcon, SparkleIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { isAddress } from 'viem'
-import { useEnsAddress } from 'wagmi'
 import { z } from 'zod'
 
 import { getEnsAddress } from '@/lib/ens'
 import { getCaseTitle, getFilingImage } from '@/lib/getFilingImage'
+import { MagicWandIcon } from '@radix-ui/react-icons'
 
 const filingSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(100, 'Title is too long'),
   partyA: z.string().refine(
     async (val) => {
       if (isAddress(val)) return true
@@ -43,11 +44,18 @@ export const AddFiling = () => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<FilingFormData>({
     resolver: zodResolver(filingSchema),
   })
+  const descriptionValue = watch("description")
+  const titleValue = watch("title")
+
   const [loading, setLoading] = useState(false)
+  const [loadingTitle, setLoadingTitle] = useState(false)
+
   const [caseInfo, setCaseInfo] = useState<{
     id: string
     partyA: string
@@ -70,7 +78,7 @@ export const AddFiling = () => {
         </div>,
       )
       // Handle form submission with resolved addresses
-      const image = await getFilingImage(data.description)
+      const image = await getFilingImage(data.description.substring(0, 200))
       const imageUrl = image.replace(
         'ipfs://',
         'https://content.wrappr.wtf/ipfs/',
@@ -81,12 +89,11 @@ export const AddFiling = () => {
         </div>,
       )
 
-      const title = await getCaseTitle(data.description)
-      toast.success('Title generated successfully!' + title)
+      toast.success('Title generated successfully!' + data.title)
 
       // save to db
       const id = await insertFiling({
-        title,
+        title: data.title,
         partyA,
         partyB,
         description: data.description,
@@ -123,6 +130,19 @@ export const AddFiling = () => {
     throw new Error('Invalid address or ENS name')
   }
 
+  const handleMagicTitle = async () => {
+    try {
+      setLoadingTitle(true)
+      const title = await getCaseTitle(descriptionValue)
+      setValue("title", title)
+    } catch (error) {
+      console.error('Error:', error)
+      toast.error(error instanceof Error ? error.message : 'An error occurred generating title')
+    } finally {
+      setLoadingTitle(false)
+    }
+  }
+
   return (
     <div className="h-fit rounded-[16px] border-4 border-black bg-white p-4 md:col-span-2 lg:w-[80vw]">
       {caseInfo ? (
@@ -138,6 +158,30 @@ export const AddFiling = () => {
         <>
           <h2 className="mb-2 text-2xl">📤 File</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="mb-4">
+              <div className="flex flex-row items-center space-x-4 justify-between">
+              <div className="w-full">
+                <label htmlFor="title" className="mb-1 block">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  className="w-full rounded border px-2 py-1"
+                  disabled={loadingTitle}
+                  {...register('title')}
+                />
+              </div>
+              <div>
+                <button type="button" disabled={loadingTitle} className="w-full rounded-full bg-purple-300 p-2 tracking-wide text-white" onClick={handleMagicTitle}>
+                  <MagicWandIcon className="text-black" />
+                </button>
+              </div>
+              </div>
+              {errors.title && (
+                <span className="text-red">{errors.title.message}</span>
+              )}
+            </div>
             <div className="mb-4">
               <label htmlFor="partyA" className="mb-1 block">
                 Party A (Ethereum Address)
