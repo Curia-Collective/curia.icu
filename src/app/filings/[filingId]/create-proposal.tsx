@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { SelectFilings, SelectJudgments } from '@/db/schema'
 import { env } from '@/env.mjs'
 import { toast } from 'sonner'
-import { encodeFunctionData, getAddress, zeroAddress } from 'viem'
+import { Address, Hex, encodeFunctionData, getAddress, zeroAddress } from 'viem'
 import { serialize, useAccount, useReadContract, useSignTypedData } from 'wagmi'
 
 import { accountAbi } from '@/lib/abis/account'
@@ -33,6 +33,48 @@ import { toUnixTimestamp } from '@/lib/time'
 // import { DUMMY_SIGNATURE } from '@/hooks/wallet/use-send-op'
 // import { createProposal } from '@/db/proposals'
 // import { getPimlicoBundlerClient } from '@/lib/wallet/bundlerClient'
+
+const createMints = (filing: SelectFilings, uri: string) => {
+  let ops = [];
+
+  if (filing.partyA !== zeroAddress) {
+    ops.push({
+      target: JUDGMENTS_ADDRESS,
+      value: BigInt(0),
+      data: encodeFunctionData({
+        abi: judgmentsAbi,
+        functionName: 'judge',
+        args: [
+          filing.partyA as Address,
+          BigInt(filing.id),
+          BigInt(1),
+          '0x' as Hex,
+          uri
+        ]
+      }),
+    })
+  } 
+
+  if (filing.partyB !== zeroAddress) {
+    ops.push({
+      target: JUDGMENTS_ADDRESS,
+      value: BigInt(0),
+      data: encodeFunctionData({
+        abi: judgmentsAbi,
+        functionName: 'judge',
+        args: [
+          filing.partyB as Address,
+          BigInt(filing.id),
+          BigInt(1),
+          '0x' as Hex,
+          uri
+        ]
+      }),
+    })
+  }
+
+  return ops;
+}
 
 export const CreateProposal = ({
   filing,
@@ -112,13 +154,15 @@ export const CreateProposal = ({
 
       const uri = await pinJsonToIpfs(tokenUri)
 
+      const ops = createMints(filing, uri);
+
       const op = {
-        target: JUDGMENTS_ADDRESS,
+        target: CURIA_ADDRESS,
         value: BigInt(0),
         data: encodeFunctionData({
-          abi: judgmentsAbi,
-          functionName: 'judge',
-          args: [CURIA_ADDRESS, BigInt(0), BigInt(0), '0x', uri],
+          abi: accountAbi,
+          functionName: 'executeBatch',
+          args: [ops],
         }),
       }
 
