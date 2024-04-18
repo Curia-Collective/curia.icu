@@ -1,5 +1,6 @@
 'use client'
 
+import randomColor from 'randomcolor'
 import React, { useEffect, useRef } from 'react'
 
 export default function Bg() {
@@ -56,7 +57,7 @@ export default function Bg() {
       const x = Math.random() * canvas.width
       const y = Math.random() * canvas.height
       const size = 20 + Math.random() * 100
-      const color = 'gold'
+      const color = randomColor({ luminosity: 'bright' }) 
       const speedX = (Math.random() - 0.5) * 4
       const speedY = (Math.random() - 0.5) * 4
       symbols.push({ x, y, size, color, speedX, speedY })
