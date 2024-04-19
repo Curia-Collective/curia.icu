@@ -39,6 +39,12 @@ export const addJudgment = async (data: InsertJudgment) => {
   }
 
   const filing = await getFilingById(data.filingId)
+  const result = (
+    await db.insert(judgments).values(data).returning({
+      id: judgments.id,
+    })
+  )[0]
+  
   if (filing.status === 'pending') {
     await db
       .update(filings)
@@ -49,19 +55,21 @@ export const addJudgment = async (data: InsertJudgment) => {
       .select()
       .from(judgments)
       .where(eq(judgments.filingId, data.filingId))
+
     if (j.length >= CURIA_THRESHOLD) {
-      await db
-        .update(filings)
-        .set({ status: 'approved' })
-        .where(eq(filings.id, data.filingId))
+      const favorA = j.filter((judgment) => judgment.favours === 'A').length;
+      const favorB = j.filter((judgment) => judgment.favours === 'B').length;
+      
+      if (favorA !== favorB) {
+        await db
+          .update(filings)
+          .set({ status: 'approved' })
+          .where(eq(filings.id, data.filingId))
+      }
     }
   }
 
-  return (
-    await db.insert(judgments).values(data).returning({
-      id: judgments.id,
-    })
-  )[0]
+  return result;
 }
 
 export const getJudgmentsByFilingId = async (
