@@ -22,19 +22,6 @@ import { DEFAULT_NETWORK } from '@/lib/siteConfig'
 import { toUnixTimestamp } from '@/lib/time'
 import { useJudgments } from '@/hooks/use-judgments'
 
-// import { toUnixTimestamp } from '@/lib/time'
-// import { pinJsonToIpfs } from '@/lib/pinata'
-// import { encodeExecuteBatch } from '@/lib/wallet/utils'
-// import { Address, Hex, encodeFunctionData, getAddress } from 'viem'
-// import { JudgementsAbi } from '@/lib/abis/Judgements'
-// import { getPublicClient } from '@/lib/wallet/publicClient'
-// import { DEFAULT_NETWORK } from '@/lib/chains'
-// import { ENTRYPOINT_ADDRESS_V06, getAccountNonce, getUserOperationHash } from 'permissionless'
-// import { NEETH_ADDRESS } from '@/lib/addresses'
-// import { DUMMY_SIGNATURE } from '@/hooks/wallet/use-send-op'
-// import { createProposal } from '@/db/proposals'
-// import { getPimlicoBundlerClient } from '@/lib/wallet/bundlerClient'
-
 const createMints = (filing: SelectFilings, uri: string) => {
   let ops = [];
 
