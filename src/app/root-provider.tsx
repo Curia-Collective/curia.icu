@@ -13,6 +13,7 @@ import { WagmiProvider } from 'wagmi'
 import { arbitrum, mainnet } from 'wagmi/chains'
 
 import { siteConfig } from '@/lib/siteConfig'
+import { useIsMounted } from '@/hooks/use-is-mounted'
 
 const config = getDefaultConfig({
   appName: siteConfig.title,
@@ -22,7 +23,12 @@ const config = getDefaultConfig({
 })
 
 export const RootProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
+  const isMounted = useIsMounted()
   const queryClient = new QueryClient()
+
+  if (!isMounted) {
+    return null
+  }
 
   return (
     <WagmiProvider config={config}>

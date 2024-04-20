@@ -30,7 +30,8 @@ export const getFilingsByStatus = async (
 }
 
 export const getFilingById = async (id: string) => {
-  return (await db.select().from(filings).where(eq(filings.id, id)))[0]
+  const f = await db.select().from(filings).where(eq(filings.id, id))
+  return f[0]
 }
 
 export const addJudgment = async (data: InsertJudgment) => {

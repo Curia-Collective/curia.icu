@@ -11,6 +11,10 @@ const FilingPage = async ({
   params: { filingId: string }
 }) => {
   const filing = await getFilingById(filingId)
+  
+  if (!filing) {
+    return <div>Filing not found</div>
+  }
 
   return (
     <div className="flex items-center justify-center p-6">
