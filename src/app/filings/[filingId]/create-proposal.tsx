@@ -2,11 +2,11 @@
 
 import { useCallback, useState } from 'react'
 import Link from 'next/link'
-import { SelectFilings, SelectJudgments } from '@/db/schema'
+import { SelectFilings } from '@/db/schema'
 import { env } from '@/env.mjs'
 import { toast } from 'sonner'
-import { Address, Hex, encodeFunctionData, getAddress, zeroAddress } from 'viem'
-import { serialize, useAccount, useReadContract, useSignTypedData } from 'wagmi'
+import { Address, Hex, encodeFunctionData, zeroAddress } from 'viem'
+import { useAccount, useReadContract, useSignTypedData } from 'wagmi'
 
 import { accountAbi } from '@/lib/abis/account'
 import { dagonAbi } from '@/lib/abis/dagon'
@@ -20,6 +20,7 @@ import { createUserOp } from '@/lib/create-user-op'
 import { pinJsonToIpfs } from '@/lib/pinata'
 import { DEFAULT_NETWORK } from '@/lib/siteConfig'
 import { toUnixTimestamp } from '@/lib/time'
+import { useJudgments } from '@/hooks/use-judgments'
 
 // import { toUnixTimestamp } from '@/lib/time'
 // import { pinJsonToIpfs } from '@/lib/pinata'
@@ -78,11 +79,10 @@ const createMints = (filing: SelectFilings, uri: string) => {
 
 export const CreateProposal = ({
   filing,
-  judgments,
 }: {
   filing: SelectFilings
-  judgments: SelectJudgments[] | null
 }) => {
+  const { data: judgments } = useJudgments(filing.id)
   const { address } = useAccount()
   const { data: balance } = useReadContract({
     address: DAGON_ADDRESS,
@@ -97,7 +97,7 @@ export const CreateProposal = ({
   const createMintPropOnCuria = useCallback(async () => {
     try {
       setLoading(true)
-      if (judgments === null || judgments.length < 3) {
+      if (!judgments || judgments === null || judgments.length < 3) {
         throw new Error(
           'Not enough judgments to approve. Has everyone (including AI) judged yet?',
         )

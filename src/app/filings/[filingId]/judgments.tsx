@@ -1,13 +1,17 @@
+'use client'
 import { SelectJudgments } from '@/db/schema'
+import { useJudgments } from '@/hooks/use-judgments'
 
 import { prettyDate } from '@/lib/time'
 
-export const Judgments = async ({
-  judgments,
+export const Judgments = ({
+  filingId,
 }: {
-  judgments: SelectJudgments[] | null
+  filingId: string
 }) => {
-  if (judgments !== null) {
+  const { data: judgments } = useJudgments(filingId)
+
+  if (judgments && judgments !== null) {
     return (
       <div className="rounded-none border-2 border-black bg-white shadow-md">
         <h2 className="rounded-t-lg bg-gray-100 px-4 py-2 text-xl font-bold">

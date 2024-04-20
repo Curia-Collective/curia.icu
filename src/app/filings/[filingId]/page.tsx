@@ -1,4 +1,4 @@
-import { getFilingById, getJudgmentsByFilingId } from '@/db/filings'
+import { getFilingById } from '@/db/filings'
 
 import { CreateProposal } from './create-proposal'
 import { FilingInfo } from './info'
@@ -11,16 +11,14 @@ const FilingPage = async ({
   params: { filingId: string }
 }) => {
   const filing = await getFilingById(filingId)
-  const judgments = await getJudgmentsByFilingId(filing.id)
-  console.log(filing, judgments)
 
   return (
     <div className="flex items-center justify-center p-6">
       <div className="mb-[10rem] rounded-md border-4 border-black bg-white p-0 lg:w-[80vw]">
         <FilingInfo filing={filing} />
         <JudgeWithReason filing={filing} />
-        <Judgments judgments={judgments} />
-        <CreateProposal filing={filing} judgments={judgments} />
+        <Judgments filingId={filing.id} />
+        <CreateProposal filing={filing} />
       </div>
     </div>
   )
