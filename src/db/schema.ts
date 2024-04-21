@@ -50,6 +50,7 @@ export const filings = pgTable('filings', {
   id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
+  tokenId: integer('token_id').default(sql`nextval('token_id_seq')`).notNull(),
   title: text('title').notNull(),
   partyA: text('party_a').notNull(),
   partyB: text('party_b').notNull(),

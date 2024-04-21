@@ -24,6 +24,7 @@ import { useJudgments } from '@/hooks/use-judgments'
 
 const createMints = (filing: SelectFilings, uri: string) => {
   let ops = [];
+  const tokenId = BigInt(filing.tokenId);
 
   if (filing.partyA !== zeroAddress) {
     ops.push({
@@ -34,7 +35,7 @@ const createMints = (filing: SelectFilings, uri: string) => {
         functionName: 'judge',
         args: [
           filing.partyA as Address,
-          BigInt(filing.id),
+          tokenId,
           BigInt(1),
           '0x' as Hex,
           uri
@@ -52,7 +53,7 @@ const createMints = (filing: SelectFilings, uri: string) => {
         functionName: 'judge',
         args: [
           filing.partyB as Address,
-          BigInt(filing.id),
+          tokenId,
           BigInt(1),
           '0x' as Hex,
           uri

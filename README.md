@@ -34,3 +34,5 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+pg_dump "postgres://default:W8KkCpa2PBVd@ep-spring-bush-a4gwvvy5-pooler.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require" -F c -b -v -f backup.dump
